@@ -1,23 +1,24 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
 
-  const lockedAmount = ethers.parseEther("0.001");
+  // const NFTFactory = await ethers.deployContract("NFTFactory");
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const SocialMediaPlatform = await ethers.deployContract("SocialMediaPlatform");
 
-  await lock.waitForDeployment();
+  // await NFTFactory.waitForDeployment();
+
+  await SocialMediaPlatform.waitForDeployment();
+
+  // console.log(
+  //   `NFTFactory deployed at ${NFTFactory.target}`
+  // );
 
   console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+    `SocialMediaPlatform deployed at ${SocialMediaPlatform.target}`
   );
 }
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

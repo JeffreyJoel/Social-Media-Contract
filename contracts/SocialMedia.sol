@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./NFTFactory.sol";
+import "./NFT.sol";
 
-contract SocialMediaPlatform is IERC721Receiver, Ownable {
+contract SocialMediaPlatform is  Ownable {
     enum UserRole {
         Admin,
         Creator,
         Moderator
     }
 
-    NFTFactory public nftFactory;
+    // NFTFactory public nftFactory;
 
     struct User {
         string username;
@@ -36,7 +36,8 @@ contract SocialMediaPlatform is IERC721Receiver, Ownable {
 
     mapping(address => User) public users;
     mapping(address => UserRole) public userRoles;
-    mapping(uint256 => NFT) public nfts;
+    // mapping(uint256 => NFT) public nfts;
+    mapping(address => NFT) public nfts;
     mapping(uint256 => Content) public contents;
 
     uint256 public nftCount;
@@ -55,17 +56,19 @@ contract SocialMediaPlatform is IERC721Receiver, Ownable {
         userRoles[user] = role;
     }
 
-    // function createNFT(
-    //     address _nftAddress,
-    //     string memory _name,
-    //     string memory _symbol
-    // ) public onlyCreator {
-    //     nfts[nftCount] = NFT(_nftAddress, _name, _symbol);
-    //     nftCount++;
-    // }
-   function createNFT(string memory _name, string memory _symbol) public {
-        nftFactory.createNFT(_name, _symbol);
+    function createNFT(
+        string memory _name,
+        string memory _symbol
+    ) public onlyCreator returns (address) {
+        NFT newNFT = new NFT(_symbol, _name);
+        nftCount++;
+        nfts[address(newNFT)] = newNFT;
+        return address(newNFT);
     }
+
+    //    function createNFT(string memory _name, string memory _symbol) public {
+    //         nftFactory.createNFT(_name, _symbol);
+    //     }
     function publishContent(string memory contentHash) public onlyCreator {
         contents[contentCount] = Content(
             msg.sender,
@@ -75,14 +78,7 @@ contract SocialMediaPlatform is IERC721Receiver, Ownable {
         contentCount++;
     }
 
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external pure override returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
+    
 
     modifier onlyAdmin() {
         require(
